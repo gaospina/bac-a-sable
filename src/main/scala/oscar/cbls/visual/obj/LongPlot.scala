@@ -55,7 +55,7 @@ abstract class LongPlot(title: String, xlab: String, ylab: String, series: List[
 
   def highlight(x: Double, y: Double, col: Color = Color.LIGHT_GRAY): Unit = {
     SwingUtilities.invokeLater(new Runnable() {
-      def run() {
+      def run(): Unit = {
         xMarker.setPaint(col);
         yMarker.setPaint(col);
         plot.addDomainMarker(xMarker)

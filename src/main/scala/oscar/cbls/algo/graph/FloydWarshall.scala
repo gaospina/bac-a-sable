@@ -82,7 +82,7 @@ object FloydWarshall{
     matrix
   }
 
-  def saturateAdjacencyMatrixToDistanceMatrix(w:Array[Array[Long]], graph:ConditionalGraph){
+  def saturateAdjacencyMatrixToDistanceMatrix(w:Array[Array[Long]], graph:ConditionalGraph): Unit ={
     val n = w.length
     val parRange = ParVector.tabulate(n){x => x}
 

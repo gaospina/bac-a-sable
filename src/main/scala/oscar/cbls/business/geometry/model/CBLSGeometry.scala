@@ -115,7 +115,7 @@ class IdentityGeometry(toValue:CBLSGeometryVar, fromValue:ChangingAtomicValue[Ge
 }
 
 trait GeometryNotificationTarget{
-  def notifyGeometryChange(a:ChangingAtomicValue[GeometryValue],id:Int,oldVal:GeometryValue,newVal:GeometryValue)
+  def notifyGeometryChange(a:ChangingAtomicValue[GeometryValue],id:Int,oldVal:GeometryValue,newVal:GeometryValue): Unit
 }
 
 case class CBLSGeometryConst(store:Store, override val value:GeometryValue, givenName:String = "")
