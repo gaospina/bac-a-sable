@@ -368,7 +368,7 @@ class KVoronoiZones(graph:ConditionalGraph,
 
   private val nodeHeapToTreateToto = new BinomialHeapWithMove[NodeLabeling](totreate => totreate.distance,graph.nbNodes * centroids.domain.iterator.length)
 
-  class NodeLabelingMap extends scala.collection.mutable.Map[NodeLabeling,Int] {
+  class NodeLabelingMap extends mutable.Map[NodeLabeling,Int] {
     def get(k : NodeLabeling):Option[Int] = {
       if (k.positionInHeapMap == -1)
         None
@@ -378,12 +378,18 @@ class KVoronoiZones(graph:ConditionalGraph,
 
     def iterator: Iterator[(NodeLabeling, Int)] = {throw new Exception("enumeration not supported"); null}
 
-    override def addOne(nodeLabelingAndPos : (NodeLabeling,Int)) = {
+    // Scala 2.12
+    // def +=(nodeLabelingAndPos : (NodeLabeling,Int)) = {
+    // Scala 2.13
+    def addOne(nodeLabelingAndPos : (NodeLabeling,Int)) = {
       nodeLabelingAndPos._1.positionInHeapMap = nodeLabelingAndPos._2
       this
     }
 
-    override def subtractOne(nodeLabeling: NodeLabeling) = {
+    // Scala 2.12
+    // def -=(nodeLabeling: NodeLabeling) = {
+    // Scala 2.13
+    def subtractOne(nodeLabeling: NodeLabeling) = {
       nodeLabeling.positionInHeapMap = -1
       this
     }
