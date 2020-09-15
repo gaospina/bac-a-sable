@@ -2,7 +2,7 @@ name := "Bac À Sable II"
 
 version := "0.1"
 
-scalaVersion := "2.13.2"
+scalaVersion := "2.13.3"
 
 scalacOptions ++= Seq(
   "-encoding", "UTF-8",

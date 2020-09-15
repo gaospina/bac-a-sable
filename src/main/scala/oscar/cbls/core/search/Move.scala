@@ -270,7 +270,7 @@ case class DoNothingMove(override val objAfter:Long,override val neighborhoodNam
 case class CompositeMove(ml:List[Move], override val objAfter:Long, override val neighborhoodName:String = null)
   extends Move(objAfter, neighborhoodName){
 
-  def this(ml:List[Move]){
+  def this(ml:List[Move]) = {
     this(ml, ml.last.objAfter)
   }
 

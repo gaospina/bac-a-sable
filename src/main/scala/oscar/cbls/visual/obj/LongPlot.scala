@@ -14,16 +14,12 @@
   ******************************************************************************/
 package oscar.cbls.visual.obj
 
-import javax.swing.JPanel
-import java.awt.BorderLayout
+import java.awt.{BorderLayout, Color}
 
-import org.jfree.data.xy.XYSeries
-import org.jfree.chart.{ChartFactory, ChartPanel, JFreeChart}
-import org.jfree.data.xy.XYSeriesCollection
-import java.awt.Color
-
+import javax.swing.{JPanel, SwingUtilities}
 import org.jfree.chart.plot.{PlotOrientation, ValueMarker, XYPlot}
-import javax.swing.SwingUtilities
+import org.jfree.chart.{ChartFactory, ChartPanel, JFreeChart}
+import org.jfree.data.xy.{XYSeries, XYSeriesCollection}
 
 class LongPlotLine(title: String,
                    xlab: String,
@@ -74,11 +70,11 @@ abstract class LongPlot(title: String, xlab: String, ylab: String, series: List[
   }
 
   def addPoint(x: Long, y: Long, ser: Int): Unit ={
-    xySeries(ser).add(x,y,true)
+    xySeries(ser).add(x.toDouble,y.toDouble,true)
   }
 
   def addPoint(x: Double, y: Long, ser: Int): Unit ={
-    xySeries(ser).add(x,y,true)
+    xySeries(ser).add(x,y.toDouble,true)
   }
 
   def removeAllPoints(ser: Int = 0): Unit = {

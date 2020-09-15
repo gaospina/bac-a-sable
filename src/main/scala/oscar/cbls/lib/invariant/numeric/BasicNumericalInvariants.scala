@@ -251,7 +251,7 @@ class Prod(vars: Iterable[IntValue])
  */
 case class Pow(a: IntValue, b: IntValue)
   extends IntInt2Int(a, b, if (DomainHelper2.isSafePow(a,b))
-    (l,r) => Math.pow(l,r).toInt
+    (l,r) => Math.pow(l.toDouble,r.toDouble).toInt
   else (l: Long, r: Long) => DomainHelper2.safePow(l,r),
     Domain(DomainHelper2.safePow(a.min, b.min) , DomainHelper2.safePow(a.max, b.max)))
 
@@ -365,8 +365,8 @@ case class Square(v: IntValue)
     Domain(if (v.min <= 0) 0 else ((v.min)*(v.min)), (v.max.max(-v.min))*(v.max.max(-v.min))))
 
 case class Sqrt(v: IntValue)
-  extends Int2Int(v, (x: Long) => math.sqrt(x).floor.toLong,
-    Domain(math.sqrt(v.min).floor.toLong,math.sqrt(v.max).floor.toLong)){
+  extends Int2Int(v, (x: Long) => math.sqrt(x.toDouble).floor.toLong,
+    Domain(math.sqrt(v.min.toDouble).floor.toLong,math.sqrt(v.max.toDouble).floor.toLong)){
   require(v.min >= 0)
 }
 
@@ -453,7 +453,7 @@ object DomainHelper2 {
   }
 
   def isSafePow(x: IntValue, y:IntValue): Boolean = {
-    Math.pow(x.max, y.max) <= Long.MaxValue/10L
+    Math.pow(x.max.toDouble, y.max.toDouble).toLong <= Long.MaxValue/10L
   }
 
   //Safe addition
@@ -491,10 +491,13 @@ object DomainHelper2 {
 
   //Safe multiplication
   def safePow(x: Long, y: Long): Long = {
-    if (Math.pow(x,y) > Long.MaxValue/10L || Math.pow(x,y).isInfinity) {
+    val xD = x.toDouble
+    val yD = y.toDouble
+    val powXY = Math.pow(xD, yD)
+    if (powXY.toLong > Long.MaxValue/10L || powXY.isInfinity) {
       Long.MaxValue/10L
     } else {
-      Math.pow(x,y).toInt
+      powXY.toLong
     }
   }
   //Division of integers is always safe.

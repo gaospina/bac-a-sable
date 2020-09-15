@@ -17,16 +17,13 @@ class ConditionalGraph(val nodes:Array[Node],
   val nodeRange = 0 until nbNodes
 
   val conditionToConditionalEdges:Array[Edge] = Array.fill[Edge](nbConditions)(null)
-  for(edge <- edges){
-    edge.conditionID match{
-      case None => ;
-      case Some(c) =>
-        require(conditionToConditionalEdges(c) == null)
-        conditionToConditionalEdges(c) = edge
-    }
+  for (edge <- edges if edge.conditionID.isDefined) {
+    val c = edge.conditionID.get
+    require(conditionToConditionalEdges(c) == null)
+    conditionToConditionalEdges(c) = edge
   }
   
-  require(!conditionToConditionalEdges.contains(null),Array.tabulate(conditionToConditionalEdges.length)(i => i + " -> " + conditionToConditionalEdges(i)).mkString("\n") + "\n" + nbConditions)
+  require(!conditionToConditionalEdges.contains(null),Array.tabulate(conditionToConditionalEdges.length)(i => s"$i -> ${conditionToConditionalEdges(i)}").mkString("\n") + s"\n$nbConditions")
 
   override def toString: String =
     s"""ConditionalGraph(nbNodes:$nbNodes nbEdges:$nbEdges nbConditions:$nbConditions
@@ -44,18 +41,18 @@ class ConditionalGraph(val nodes:Array[Node],
       ("nbEdges with .length==0",edges.count(_.length==0)),
       ("nbConditionalEdges with .length==0",edges.count(e => e.length==0 && e.conditionID.isDefined)),
       ("nbNoTransit Nodes",nodes.count(!_.transitAllowed)),
-      ("degree->nbNode",nodes.groupBy(_.degree).mapValues(_.length).toList.sortBy(_._1).map(x => "" + x._1 + " -> " + x._2).mkString("; ")),
+      ("degree->nbNode",nodes.groupBy(_.degree).view.mapValues(_.length).toList.sortBy(_._1).map(x => "" + x._1 + " -> " + x._2).mkString("; ")),
       ("nbComponent conditions=false" , ccClosed.length),
-      ("component size to nbInstance conditions=false" , ccClosed.map(_.size).groupBy(x => x).mapValues(_.length).toList.sortBy(_._1).map(x => "" + x._1 + " -> " + x._2).mkString("; ")),
+      ("component size to nbInstance conditions=false" , ccClosed.map(_.size).groupBy(x => x).view.mapValues(_.length).toList.sortBy(_._1).map(x => s"${x._1} -> ${x._2}").mkString("; ")),
       ("nbComponent conditions=true" , ccOpen.length),
-      ("component size to nbInstance conditions=true" , ccOpen.map(_.size).groupBy(x => x).mapValues(_.length).toList.sortBy(_._1).map(x => "" + x._1 + " -> " + x._2).mkString("; "))
+      ("component size to nbInstance conditions=true" , ccOpen.map(_.size).groupBy(x => x).view.mapValues(_.length).toList.sortBy(_._1).map(x => s"${x._1} -> ${x._2}").mkString("; "))
     ).map(x => (x._1,""+x._2))
   }
 
   //"C:\Program Files (x86)\Graphviz2.38\bin\neato" -Tpng  vlsnGraph.dot > a.png
   def toDOT:String = {
     s"""##Command to produce the output: "neato -Tpng thisfile > thisfile.png"
-       |graph WiringGraph {
+       |graph ConditionalGraph {
        |${nodes.map(node => node.toDOT).mkString("\t", "\n\t", "\n")}
        |${edges.map(edge => edge.toDOT(this)).mkString("\t", "\n\t", "\n")}
        |  overlap=false

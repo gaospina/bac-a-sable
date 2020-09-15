@@ -86,9 +86,9 @@ class Profile(n: Int,maxh: Int,model:Store){
     var h = ""
     var cur = 0
     while(cur != -1){
-      s += profile_start(cur)+"\t"
-      l += profile_length(cur)+"\t"
-      h = h + profile_height(cur)+"\t"
+      s += s"${profile_start(cur)}\t"
+      l += s"${profile_length(cur)}\t"
+      h = s"$h${profile_height(cur)}\t"
       cur = profile_next(cur)
     }
     println(s)
@@ -114,7 +114,7 @@ class Profile(n: Int,maxh: Int,model:Store){
     while(s > profile_start(cur))cur = profile_next(cur)
     assert(s == profile_start(cur))
     if(s!=profile_start(cur)){
-      println(s +"\t"+profile_start(cur))
+      println(s"$s\t${profile_start(cur)}")
     }
     while(rd > 0){
 //      println(rd+"\t"+profile_start(cur)+"\t"+profile_length(cur))
@@ -211,7 +211,7 @@ class Profile(n: Int,maxh: Int,model:Store){
       
       if(cs != profile_start(cur)){
         println("PROBLEM HERE")
-        println(profile_start(0)  + "\t"+ cur + "\t"+ cs + "\t"+ rd  + "\t"+ profile_start(cur) + "\t"+ d  + "\t"+ s  + "\t"+ h)
+        println(s"${profile_start(0)}\t$cur\t$cs\t$rd\t${profile_start(cur)}\t$d\t$s\t$h")
         print_profile()
       }
       next_h = profile_height(cur).newValue

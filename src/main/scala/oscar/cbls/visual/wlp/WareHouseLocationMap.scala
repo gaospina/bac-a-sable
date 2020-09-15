@@ -1,11 +1,11 @@
 package oscar.cbls.visual.wlp
 
-import java.awt.geom.Rectangle2D
 import java.awt.Color
 import java.awt.geom.Line2D.Double
+import java.awt.geom.Rectangle2D
 
 import oscar.visual.VisualDrawing
-import oscar.visual.shapes.{VisualRectangle, VisualCircle, VisualLine, VisualShape}
+import oscar.visual.shapes.{VisualCircle, VisualLine, VisualRectangle, VisualShape}
 
 import scala.collection.immutable.SortedSet
 

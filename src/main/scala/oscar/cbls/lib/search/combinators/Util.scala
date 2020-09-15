@@ -298,8 +298,8 @@ class Timeout(a:Neighborhood, maxDurationMilliSeconds:Long) extends Neighborhood
 
     if (System.currentTimeMillis() >= deadline) {
 
-      val hours = (maxDurationMilliSeconds / (1000*60*60)).floor.toInt
-      val minutes = (maxDurationMilliSeconds / (1000 * 60)).floor.toInt % 60
+      val hours = (maxDurationMilliSeconds.toFloat / (1000*60*60)).floor.toInt
+      val minutes = (maxDurationMilliSeconds.toFloat / (1000 * 60)).floor.toInt % 60
       val seconds:Double = (maxDurationMilliSeconds / 1000.0) % 60
       println(s"Timeout of $hours:$minutes:$seconds")
       NoMoveFound

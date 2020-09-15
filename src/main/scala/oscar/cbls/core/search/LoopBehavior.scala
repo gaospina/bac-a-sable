@@ -85,9 +85,9 @@ case class First(maxNeighbors:() => Long = () => Long.MaxValue, randomized:Boole
           Random.shuffle(baseIterable.toList).iterator
         } else baseIterable.iterator
         override def hasNext : Boolean = baseIterator.hasNext && !foundMove && remainingNeighbors>0L
-        override def next() : T = {remainingNeighbors -= 1L; baseIterator.next}
+        override def next() : T = {remainingNeighbors -= 1L; baseIterator.next()}
         override def hasUnboundedNext() : Boolean = baseIterator.hasNext
-        override def unboundedNext() : T = baseIterator.next
+        override def unboundedNext() : T = baseIterator.next()
       }
     }
 
@@ -107,9 +107,9 @@ case class Best(maxNeighbors:() => Long = () => Long.MaxValue) extends LoopBehav
       override def iterator : BoundedIterator[T] = new BoundedIterator[T]{
         val baseIterator = baseIterable.iterator
         override def hasNext : Boolean = baseIterator.hasNext && remainingNeighbors>0L
-        override def next() : T = {remainingNeighbors -= 1L; baseIterator.next}
+        override def next() : T = {remainingNeighbors -= 1L; baseIterator.next()}
         override def hasUnboundedNext() : Boolean = baseIterator.hasNext
-        override def unboundedNext() : T = baseIterator.next
+        override def unboundedNext() : T = baseIterator.next()
       }
     }
 

@@ -16,7 +16,7 @@
  */
 package oscar.cbls.algo.fun
 
-import oscar.cbls._
+import oscar.cbls.algo._
 import oscar.cbls.algo.rb.{RedBlackTreeMap, RedBlackTreeMapExplorer}
 
 import scala.annotation.tailrec
@@ -189,7 +189,7 @@ class PiecewiseLinearFun(private[fun] val transformation: RedBlackTreeMap[Pivot]
     //update the pivots to the flipped pivot
 
     val updatedForwardFct = transformReadyForFlip.update(startZoneIncluded,transformReadyForFlip.biggestLowerOrEqual(endZoneIncluded).get._1,(_,_) => {
-      val newPivot = flippedPivotsIterator.next
+      val newPivot = flippedPivotsIterator.next()
       (newPivot.fromValue,newPivot)
     } )
 

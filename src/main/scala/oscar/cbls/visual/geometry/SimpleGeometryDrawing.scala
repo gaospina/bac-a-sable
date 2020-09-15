@@ -168,7 +168,7 @@ class SimpleGeometryDrawing(relevantDistances:List[(Int,Int)],
     val centers = Overlap.centersOfFreeSpaces(s.tail, s.head,100).toArray
 
     for(center <- centers){
-      val centroidPoint = new VisualShapeConcrete(this, w.toShape(translateTransform.transform(scaleTransform.transform(nonNegativeTransform.transform(geometry.point(center._1,center._2))))))
+      val centroidPoint = new VisualShapeConcrete(this, w.toShape(translateTransform.transform(scaleTransform.transform(nonNegativeTransform.transform(geometry.point(center._1.toDouble,center._2.toDouble))))))
       centroidPoint.fill = true
       centroidPoint.innerCol = Color.BLACK
       centroidPoint.borderWidth = 10
@@ -183,7 +183,7 @@ class SimpleGeometryDrawing(relevantDistances:List[(Int,Int)],
     for((fromID,toID) <- relevantDistances){
       val (x1,y1) = centers(fromID)
       val (x2,y2) = centers(toID)
-      val s = new VisualShapeConcrete(this, w.toShape(translateTransform.transform(scaleTransform.transform(nonNegativeTransform.transform(geometry.createLine(x1:Long,y1:Long,x2:Long,y2:Long))))))
+      val s = new VisualShapeConcrete(this, w.toShape(translateTransform.transform(scaleTransform.transform(nonNegativeTransform.transform(geometry.createLine(x1.toDouble,y1.toDouble,x2.toDouble,y2.toDouble))))))
       s.innerCol = Color.BLUE
       s.dashed = false
     }

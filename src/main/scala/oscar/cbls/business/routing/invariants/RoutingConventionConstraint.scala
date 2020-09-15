@@ -4,6 +4,7 @@ import oscar.cbls.algo.quick.QList
 import oscar.cbls.algo.seq.IntSequence
 import oscar.cbls.business.routing.model.VehicleLocation
 import oscar.cbls.core.computation.{ChangingSeqValue, Invariant, SeqNotificationTarget, SeqUpdate, SeqUpdateAssign, SeqUpdateDefineCheckpoint, SeqUpdateInsert, SeqUpdateLastNotified, SeqUpdateMove, SeqUpdateRemove, SeqUpdateRollBackToCheckpoint}
+import oscar.cbls.core.propagation.Checker
 
 import scala.collection.immutable.HashMap
 
@@ -31,12 +32,21 @@ class RoutingConventionConstraint(routes: ChangingSeqValue, n: Int, v: Int) exte
 
   finishInitialization()
 
-  private var vehicleSearcher: VehicleLocation = VehicleLocation((0 until v).toArray)
+  checkVehicleOrder
+
+  def checkVehicleOrder: Unit = {
+    val positionOfVehicles = (0 until v).map(routes.value.positionOfAnyOccurrence(_).get).toArray
+    for (vehicle <- 0 until v - 1) {
+      require(positionOfVehicles(vehicle) < positionOfVehicles(vehicle + 1),
+        "The vehicle depot are not sorted properly ! Their position should be strictly increasing, got : " +
+          positionOfVehicles.toList.zipWithIndex.map(x => s"${x._2} -> ${x._1}"))
+    }
+  }
 
   private val routedNodes: Array[Boolean] = Array.tabulate(n)(node => if(node < v) true else false)
   // A stack of checkpoint changes. It contains at least an empty HashMap (so we avoid building a new HashMap each time we roll-back or define checkpoint level 0
-  private var checkpointsChanges: QList[(VehicleLocation, HashMap[Int, Boolean])] = QList((vehicleSearcher, HashMap.empty))
-  private var currentChanges: HashMap[Int, Boolean] = checkpointsChanges.head._2
+  private var checkpointsChanges: QList[HashMap[Int, Boolean]] = QList(HashMap.empty)
+  private var currentChanges: HashMap[Int, Boolean] = checkpointsChanges.head
   private var checkpointLevel: Int = -1
 
   private var checkpointAtLevel0 = routes.newValue
@@ -46,18 +56,13 @@ class RoutingConventionConstraint(routes: ChangingSeqValue, n: Int, v: Int) exte
   }
 
   private def isRouted(node: Int): Boolean ={
-    checkpointsChanges.head._2.getOrElse(node, routedNodes(node))
+    currentChanges.getOrElse(node, routedNodes(node))
   }
 
   private def checkRequirement(requirement: Boolean, errorMsg: String, prevUpdates: SeqUpdate): Unit ={
     require(requirement,
       s"""$errorMsg
       |Previous movements : $prevUpdates""".stripMargin)
-  }
-
-  private def checkIfPosWithinRoute(poss: List[Int], routesNow:  IntSequence, prev: SeqUpdate, errorDataMsg: String): Unit ={
-    checkRequirement(!poss.exists(pos => pos < 0 || pos >= routesNow.size),
-      s"One of the used positions is outside of the route !$errorDataMsg", prev)
   }
 
   /**
@@ -76,8 +81,8 @@ class RoutingConventionConstraint(routes: ChangingSeqValue, n: Int, v: Int) exte
     for(_ <- 0 until checkpointLevel)
       checkpointsChanges = checkpointsChanges.tail
 
-    checkpointsChanges = QList((vehicleSearcher, checkpointsChanges.head._2))
-    currentChanges = checkpointsChanges.head._2
+    checkpointsChanges = QList(checkpointsChanges.head)
+    currentChanges = checkpointsChanges.head
   }
 
   private def digestUpdates(changes: SeqUpdate): Boolean ={
@@ -85,7 +90,6 @@ class RoutingConventionConstraint(routes: ChangingSeqValue, n: Int, v: Int) exte
       case _@SeqUpdateDefineCheckpoint(prev: SeqUpdate,isStarMode: Boolean,checkpointLevel: Int) => {
         if(!digestUpdates(prev)) return false
         // if checkpoint = 0 ==> movement validation we need to apply all the recorded changes
-        vehicleSearcher = vehicleSearcher.regularize
 
         if(checkpointLevel == 0) {
           if (this.checkpointLevel != -1)
@@ -93,7 +97,7 @@ class RoutingConventionConstraint(routes: ChangingSeqValue, n: Int, v: Int) exte
           checkpointAtLevel0 = changes.newValue
           // if checkpoint != 0 ==> add a new layer of changes
         } else if(checkpointsChanges.size == checkpointLevel) {
-          checkpointsChanges = QList((vehicleSearcher,currentChanges), checkpointsChanges)
+          checkpointsChanges = QList(currentChanges, checkpointsChanges)
           currentChanges = new HashMap[Int, Boolean]() ++ currentChanges
         }
 
@@ -109,30 +113,19 @@ class RoutingConventionConstraint(routes: ChangingSeqValue, n: Int, v: Int) exte
 
         //The pos of the value will be at this position so we need to check if the previous position is within the sequence
         //(otherwise we'll have problem in case we insert at the end of the sequence)
-        checkIfPosWithinRoute(List(pos-1), prev.newValue, prev, errorDataMsg)
-        checkRequirement(value >= v, s"Trying to insert a vehicle !$errorDataMsg", prev)
-        checkRequirement(!isRouted(value), s"Node already inserted !$errorDataMsg", prev)
+        checkRequirement(pos != 0, "Trying to insert at a depot !" + errorDataMsg, prev)
+        checkRequirement(value >= v, "Trying to insert a vehicle !" + errorDataMsg, prev)
+        checkRequirement(!isRouted(value), "Node already inserted !" + errorDataMsg, prev)
 
         currentChanges = currentChanges + ((value, true))
-        vehicleSearcher = vehicleSearcher.push(sui.oldPosToNewPos)
         true
       }
       case sum@SeqUpdateMove(fromPos: Int, toPos: Int, afterPos: Int, flip: Boolean, prev: SeqUpdate) => {
         if(!digestUpdates(prev)) return false
-        val fromVehicle = vehicleSearcher.vehicleReachingPosition(fromPos)
-        val errorDataMsg = s"""
-             |Got:
-             |    Insert value -> $fromPos
-             |    Insert pos -> $toPos
-             |    After position -> $afterPos""".stripMargin
-        checkIfPosWithinRoute(List(fromPos, toPos, afterPos), prev.newValue, prev, errorDataMsg)
-        checkRequirement(fromVehicle == vehicleSearcher.vehicleReachingPosition(toPos) &&
-          vehicleSearcher.startPosOfVehicle(fromVehicle) != fromPos,
-          s"Trying to move a segment including a vehicle !$errorDataMsg", prev)
-        checkRequirement(fromPos <= toPos, s"The segment's end must be after the segment's start !$errorDataMsg" , prev)
-        checkRequirement(afterPos < fromPos || afterPos >= toPos, s"Position of insertion is within the segment !$errorDataMsg", prev)
+        val errorDataMsg = "\nGot : \n    From position -> " + fromPos + "\n    To position -> " + toPos + "\n    After position -> " + afterPos
 
-        vehicleSearcher = vehicleSearcher.push(sum.oldPosToNewPos)
+        checkRequirement(!sum.movedValuesQList.exists(_<v), "Trying to move a vehicle !" + errorDataMsg, prev)
+
         true
       }
       case sur@SeqUpdateRemove(pos: Int, prev: SeqUpdate) => {
@@ -140,14 +133,11 @@ class RoutingConventionConstraint(routes: ChangingSeqValue, n: Int, v: Int) exte
         val errorDataMsg = s"""
              |Got:
              |    Remove pos -> $pos""".stripMargin
-        val impactedVehicle = vehicleSearcher.vehicleReachingPosition(pos)
 
-        checkIfPosWithinRoute(List(pos), prev.newValue, prev, errorDataMsg)
-        checkRequirement(vehicleSearcher.startPosOfVehicle(impactedVehicle) != pos, s"Trying to remove a vehicle !$errorDataMsg", prev)
+        checkRequirement(sur.removedValue >= v, s"Trying to remove a vehicle ! $errorDataMsg", prev)
 
         val value = prev.newValue.valueAtPosition(pos).get
         currentChanges = currentChanges + ((value, false))
-        vehicleSearcher = vehicleSearcher.push(sur.oldPosToNewPos)
 
         true
       }
@@ -158,8 +148,7 @@ class RoutingConventionConstraint(routes: ChangingSeqValue, n: Int, v: Int) exte
         for(_ <- 0 until this.checkpointLevel - checkpointLevel)
           checkpointsChanges = checkpointsChanges.tail
 
-        currentChanges = checkpointsChanges.head._2
-        vehicleSearcher = checkpointsChanges.head._1
+        currentChanges = checkpointsChanges.head
         this.checkpointLevel = checkpointLevel
 
         true
@@ -171,4 +160,7 @@ class RoutingConventionConstraint(routes: ChangingSeqValue, n: Int, v: Int) exte
       case _@SeqUpdateAssign(value: IntSequence) => false
     }
   }
+
+  override def checkInternals(c: Checker): Unit = {}
+
 }

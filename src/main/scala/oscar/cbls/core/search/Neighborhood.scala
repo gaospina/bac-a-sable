@@ -220,7 +220,7 @@ abstract class Neighborhood(name:String = null) {
           }
           if (printTakenMoves || printMoveSythesis) {
 
-            val runDurationMs:Long = ((System.nanoTime() - startSearchNanotime) / 1000000).ceil.toLong
+            val runDurationMs:Long = ((System.nanoTime() - startSearchNanotime).toFloat / 1000000).ceil.toLong
             val hours = (runDurationMs / (1000.0 * 60 * 60)).floor.toInt
             val minutes = (runDurationMs / (1000.0 * 60)).floor.toInt % 60
             val seconds: Double = (runDurationMs / 1000.0) % 60
@@ -551,7 +551,7 @@ abstract class EasyNeighborhoodMultiLevel[M<:Move](neighborhoodName:String=null)
 
   override final def getMove(obj: Objective, initialObj:Long, acceptanceCriterion: (Long, Long) => Boolean): SearchResult = {
 
-    require(!exploring,this + " is not a re-entrant neighborhood")
+    require(!exploring,s"$this is not a re-entrant neighborhood")
     exploring = true
 
     oldObj = initialObj
@@ -560,7 +560,7 @@ abstract class EasyNeighborhoodMultiLevel[M<:Move](neighborhoodName:String=null)
     bestNewObj = initialObj //Long.MaxValue // //because we do not want "no move" to be considered as an actual move.
     this.obj = if (printExploredNeighbors) new LoggingObjective(obj) else obj
     if (printExploredNeighborhoods)
-      println(neighborhoodNameToString + ": start exploration")
+      println(s"$neighborhoodNameToString: start exploration")
 
     exploreNeighborhood(oldObj)
 
@@ -597,7 +597,7 @@ abstract class EasyNeighborhoodMultiLevel[M<:Move](neighborhoodName:String=null)
 
     val myPrintExploredNeighbors = printExploredNeighbors
 
-    if (newObj < bestNewObj && acceptanceCriterion(oldObj, newObj)) {
+    if ((newObj < bestNewObj || toReturnMove == null)&& acceptanceCriterion(oldObj, newObj)) {
       bestNewObj = newObj
       toReturnMove = instantiateCurrentMove(newObj)
       if (myPrintExploredNeighbors) {

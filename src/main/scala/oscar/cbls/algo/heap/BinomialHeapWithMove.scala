@@ -20,7 +20,7 @@
 
 package oscar.cbls.algo.heap
 
-import scala.collection.Iterator
+import scala.collection.{Iterator, mutable}
 import scala.collection.immutable.SortedMap
 
 /**
@@ -350,7 +350,7 @@ class BinomialHeapWithMove[T](getKey:T => Long,val maxsize:Int)(implicit val A:O
  * @author renaud.delandtsheer@cetic.be
  * @param maxId
  */
-class ArrayMap(maxId:Int) extends scala.collection.mutable.Map[Int, Long]{
+class ArrayMap(maxId:Int) extends mutable.Map[Int, Long]{
   
   val array:Array[Long] = Array.fill[Long](maxId)(-1)
   def get(key: Int): Option[Long] =  {
@@ -363,12 +363,12 @@ class ArrayMap(maxId:Int) extends scala.collection.mutable.Map[Int, Long]{
 
   def iterator: Iterator[(Int, Long)] = {throw new Exception("enumeration not supported"); null}
 
-  def +=(kv: (Int, Long)): this.type = {
+  def addOne(kv: (Int, Long)): this.type = {
     array(kv._1) = kv._2
     this
   }
 
-  def -=(key: Int): this.type = {
+  def subtractOne(key: Int): this.type = {
     array(key) = -1
     this
   }
@@ -738,6 +738,7 @@ class BinomialHeapWithMoveLong(getKey:Int => Long,val maxsize:Int, val maxKey:In
 
   // TODO Should add warning in case of duplicated value. This heap **cannot** contain duplicated values.
   def insert(elem:Int): Unit = {
+    require(!contains(elem), "This heap cannot contain duplicate values!")
     //insert en derniere position, puis bubble up
     heapArray(size)=elem
     position(elem) = size
@@ -760,26 +761,27 @@ class BinomialHeapWithMoveLong(getKey:Int => Long,val maxsize:Int, val maxKey:In
   private def pushDown(startposition:Int):Int = {
     var position = startposition
     val positionKey = getKey(heapArray(position))
-    while(true)
-      if(leftChild(position) < size && positionKey > getKey(heapArray(leftChild(position)))){
+    while(true) {
+      if (leftChild(position) < size && positionKey > getKey(heapArray(leftChild(position)))) {
         //examiner aussi left child
-        if(rightChild(position) < size && getKey(heapArray(rightChild(position))) < getKey(heapArray(leftChild(position)))){
+        if (rightChild(position) < size && getKey(heapArray(rightChild(position))) < getKey(heapArray(leftChild(position)))) {
           //c'est avec le right child qu'il faut inverser
-          swapPositions(position,rightChild(position))
+          swapPositions(position, rightChild(position))
           position = rightChild(position)
-        }else{
+        } else {
           //c'est avec le left chile qu'il faut inverser
-          swapPositions(position,leftChild(position))
+          swapPositions(position, leftChild(position))
           position = leftChild(position)
         }
-      }else if(rightChild(position) < size && positionKey > getKey(heapArray(rightChild(position)))){
+      } else if (rightChild(position) < size && positionKey > getKey(heapArray(rightChild(position)))) {
         //only consider right child
-        swapPositions(position,rightChild(position))
+        swapPositions(position, rightChild(position))
         position = rightChild(position)
-      }else{
+      } else {
         return position
       }
-    require(false) //jamais execute
+    }
+    //jamais execute
     position
   }
 

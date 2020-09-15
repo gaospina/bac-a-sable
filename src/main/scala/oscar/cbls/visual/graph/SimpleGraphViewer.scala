@@ -67,10 +67,10 @@ class SimpleGraphViewer(graph:ConditionalGraphWithIntegerNodeCoordinates)
       nodeCoordinates._2 * yMultiplier))
 
     lineV.dashed = false
-    lineV.borderWidth = side
+    lineV.borderWidth = side.toFloat
     lineV.outerCol = color
     lineH.dashed = false
-    lineH.borderWidth = side
+    lineH.borderWidth = side.toFloat
     lineH.outerCol = color
 
     val tempPoint = new VisualCircle(this,
@@ -99,7 +99,7 @@ class SimpleGraphViewer(graph:ConditionalGraphWithIntegerNodeCoordinates)
     line.dashed = dashed
     line.outerCol = color
 
-    line.borderWidth = width
+    line.borderWidth = width.toFloat
   }
 
 }

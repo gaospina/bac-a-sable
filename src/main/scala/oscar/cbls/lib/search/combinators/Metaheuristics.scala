@@ -60,7 +60,7 @@ class Metropolis(a: Neighborhood, iterationToTemperature: Long => Double = _ => 
       //println("relativeIncrease: " + relativeIncrease)
       //println("temp:" + temperatureValue)
 
-      val toReturn = math.random < math.pow(base, - relativeIncrease / temperatureValue)
+      val toReturn = math.random() < math.pow(base, - relativeIncrease / temperatureValue)
 
       //println("metropolis decision: " + toReturn)
 

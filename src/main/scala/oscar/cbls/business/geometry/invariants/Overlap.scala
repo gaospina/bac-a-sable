@@ -109,7 +109,7 @@ object Overlap {
     for(xId <- 0 to nbSteps1D){
       for(yId <- 0 to nbSteps1D){
 
-        val pt = geometry.point(xs(xId),ys(yId))
+        val pt = geometry.point(xs(xId).toDouble,ys(yId).toDouble)
         if(indexedOuter.covers(pt) && ! indexedZoneFilled.covers(pt)){
           //it contains it :-)
           //commputes the min distance to any edge of the zone

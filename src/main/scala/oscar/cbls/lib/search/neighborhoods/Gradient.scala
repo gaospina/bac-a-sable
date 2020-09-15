@@ -116,7 +116,7 @@ case class DiscretizedDirectionGradient(vars:Array[CBLSIntVar],
         notifyFound()
       }
 
-      iterator.next
+      iterator.next()
       iterator.hasNext
     }
 
@@ -253,7 +253,7 @@ case class GradientDescent(vars:Array[CBLSIntVar],
     val selectVarsIt = selectVarsWithHotRestart.iterator
 
     while (selectedVarSet.size < maxNbVars && selectVarsIt.hasNext) {
-      val currentVarIndice = selectVarsIt.next
+      val currentVarIndice = selectVarsIt.next()
       startIndiceForHotRestart = currentVarIndice
 
       if (!(selectedVarSet contains currentVarIndice)) {
@@ -296,7 +296,7 @@ case class GradientDescent(vars:Array[CBLSIntVar],
     }
 
     if(selectVarsIt.hasNext){
-      startIndiceForHotRestart = selectVarsIt.next
+      startIndiceForHotRestart = selectVarsIt.next()
     }else{
       startIndiceForHotRestart = startIndiceForHotRestart + 1
     }

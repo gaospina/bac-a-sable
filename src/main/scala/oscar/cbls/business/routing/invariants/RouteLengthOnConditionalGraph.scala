@@ -602,7 +602,7 @@ class RouteLengthOnConditionalGraph(routes:SeqValue,
 
       require(minNode == info.minNode)
       require(maxNode == info.maxNode)
-      require(distance1 == distance2, distance1 + "==" +  distance2)
+      require(distance1 == distance2, s"$distance1==$distance2")
       //TODO: did fail
       require(info.distance == distance1,
         s"${info.distance}==$distance1 info:$info")

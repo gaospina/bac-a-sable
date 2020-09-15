@@ -40,7 +40,7 @@ object TSProutePoints extends App {
     val percent = 3
     println("benchmarking " + fileName)
     print("n\tv\tpercent\ttime")
-    print(n + "\t" + v + "\t" + percent + "\t")
+    print(s"$n\t$v\t$percent\t")
     new TSPRoutePointsS(n, v, percent, 0, matrix)
   }
 
@@ -66,19 +66,19 @@ object TSProutePoints extends App {
     for (t <- 1 to nbTrials) {
       print("\ttime")
     }
-    println
+    println()
 
     for { n <- 1000 to 11000 by 2000
           v <- List(100)
           maxPivotPerValuePercent <- List(0, 1, 2, 3, 4, 5, 20) } {
-      print(n + "\t" + v + "\t" + maxPivotPerValuePercent + "\t")
+      print(s"$n\t$v\t$maxPivotPerValuePercent\t")
       for (t <- 1 to nbTrials) {
         val symmetricDistanceMatrix = RoutingMatrixGenerator(n)._1
         new TSPRoutePointsS(n, v, maxPivotPerValuePercent, 0, symmetricDistanceMatrix)
         print("\t")
         System.gc()
       }
-      println
+      println()
     }
   }
 
@@ -105,7 +105,7 @@ object TSProutePoints extends App {
     val n = matrix.length
     for(i <- 0 until n){
       for(j <- 0 until n){
-        writer.write(matrix(i)(j) + " ")
+        writer.write(s"${matrix(i)(j)} ")
       }
       writer.write("\n")
     }
@@ -113,7 +113,7 @@ object TSProutePoints extends App {
 
   def saveMatrixToFile(fileName:String,matrix:Array[Array[Long]]): Unit ={
     val writer = new PrintWriter(new File(fileName))
-    writer.write(matrix.length + "\n")
+    writer.write(s"${matrix.length}\n")
     writeMatrix(writer,matrix)
     writer.close()
   }
@@ -146,7 +146,7 @@ object TSProutePoints extends App {
     warmUp(200)
     println()
     print("balise\tn\ttime\tobj")
-    println
+    println()
 
     for(n <- benchmarkSizes){
       print("runResult " + n + "\t")
@@ -162,9 +162,9 @@ object TSProutePoints extends App {
 
     println()
     print("n\ttime\tobj")
-    println
-      print(n + "\t")
-      val matrix = loadMatrixFromFile(fileName + n + ".bench")
+    println()
+      print(s"$n\t")
+      val matrix = loadMatrixFromFile(s"$fileName$n.bench")
       new TSPRoutePointsS(n, 1, 3, 0, matrix,true)
       print("\n")
       System.gc()

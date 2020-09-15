@@ -97,7 +97,7 @@ object testQuickSort extends App with StopWatch{
 
   val n = 10000000
   val k = 500
-  val randomValues = Array.tabulate(n)(_ => (math.random * Int.MaxValue).toInt)
+  val randomValues = Array.tabulate(n)(_ => (math.random() * Int.MaxValue).toInt)
 
   startWatch()
   val s = KSmallest.getkSmallests(randomValues,k,x => x)
@@ -174,7 +174,7 @@ class LazyQuicksort(val array:Array[Int], key:Int => Long = a => a) extends Iter
 
   class LazyQuickSortIterator(l:LazyQuicksort) extends Iterator[Int]{
     var nextPos:Int = 0
-    override val length: Int = l.array.length
+    override val size: Int = l.array.length
 
     override def hasNext: Boolean = {
       nextPos < length

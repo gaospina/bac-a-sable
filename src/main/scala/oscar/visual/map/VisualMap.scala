@@ -40,6 +40,7 @@ import org.jdesktop.swingx.JXMapViewer
 import org.jdesktop.swingx.mapviewer.DefaultTileFactory
 import org.jdesktop.swingx.mapviewer.GeoPosition
 import org.jdesktop.swingx.mapviewer.TileFactoryInfo
+import java.lang.InterruptedException
 import java.awt.Toolkit
 import oscar.visual.VisualFrame
 

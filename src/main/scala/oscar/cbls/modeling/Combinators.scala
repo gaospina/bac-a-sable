@@ -13,7 +13,6 @@ trait CombinatorsAPI
     with NeighborhoodSelectionCombinators
     with UtilityCombinators
 
-
 trait BasicCombinators{
 
   /**
@@ -309,7 +308,7 @@ trait NeighborhoodSelectionCombinators{
    * At each invocation, this combinator explores one of the neighborhoods in l (and repeat if it is exhausted)
    * neighborhoods are selected based on their speed the fasted one to find a move is selected
    * a tabu is added: in case a neighborhood is exhausted, it is not explored for a number of exploration of this combinator
-   * the tabu can be overriden if all neighborhoods explored are exhausted. tabu neighborhood can be explored anyway if they are still tabu, but for less than overrideTabuOnFullExhaust invocations of this combinator
+   * the tabu can be overridden if all neighborhoods explored are exhausted. tabu neighborhood can be explored anyway if they are still tabu, but for less than overrideTabuOnFullExhaust invocations of this combinator
    * the refresh parameter forces the combinator to try all neighborhoods every "refresh" invocation. it is useful because some neighorhood can perform poorly at the beginning of search and much better later on, and we do not want the combinator to just "stick to its first impression"
    * @param l the neighborhoods to select from
    * @param tabuLength the number of invocation that they will not be explored when exhausted
@@ -635,7 +634,7 @@ class NeighborhoodOps(n:Neighborhood){
   def noReset: Neighborhood = NoReset(n)
 
   /**
-   * defines a name wor this (composite) neighborhood
+   * defines a name for this neighborhood
    * this will be used as prefix for each move returned by this neighborhood (the original name will still exist)
    * use this for debug and documentation purpose only
    *
@@ -693,7 +692,7 @@ class NeighborhoodOps(n:Neighborhood){
   def cauchyAnnealing(initialTemperature:Double, base: Double = 2) = new Metropolis(n, iterationToTemperature = (it: Long) => initialTemperature / (it + 1), base)
 
   //Boltzmann annealing, where T = T_0/ln k
-  def boltzmannAnnealing(initialTemperature:Double, base: Double = 2) = new Metropolis(n, iterationToTemperature = (it: Long) => initialTemperature / math.log(it + 1), base)
+  def boltzmannAnnealing(initialTemperature:Double, base: Double = 2) = new Metropolis(n, iterationToTemperature = (it: Long) => initialTemperature / math.log(it.toDouble + 1), base)
 
   //TODO: Adaptive Simulated Annealing: T = T_0 exp(-c k^1/D) wth re-annealing also permits adaptation to changing sensitivities in the multi-dimensional parameter-space.
 

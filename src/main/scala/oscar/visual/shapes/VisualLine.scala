@@ -18,6 +18,8 @@ package oscar.visual.shapes
 
 import java.awt.geom.Line2D
 import oscar.visual.VisualDrawing
+import java.awt.Graphics2D
+import java.awt.BasicStroke
 
 /**
  *
